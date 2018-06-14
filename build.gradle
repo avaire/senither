@@ -1,0 +1,54 @@
+plugins {
+    id 'application'
+    id 'com.github.johnrengelman.shadow' version '2.0.2'
+}
+
+apply plugin: 'java'
+apply plugin: 'idea'
+
+version '0.1'
+group 'com.avairebot'
+description = 'Helpfull bot for managing AvaIre the Discord Bot'
+mainClassName = 'com.avairebot.senither.AutoSenither'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+shadowJar {
+    archiveName = "AutoSenither.jar"
+
+    doLast {
+        copy {
+            from 'build/libs/AutoSenither.jar'
+            into '.'
+        }
+    }
+}
+
+tasks.withType(JavaCompile) {
+    dependsOn 'clean'
+    options.encoding = 'UTF-8'
+    options.compilerArgs << "-Xlint:-unchecked"
+}
+
+task fatJar(type: Jar) {
+    manifest {
+        attributes 'Implementation-Title': 'AutoSenither: Discord Bot',
+                'Implementation-Version': version,
+                'Main-Class': 'com.avairebot.senither.AutoSenither'
+    }
+
+    baseName = project.name
+
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    with jar
+}
+
+repositories {
+    mavenCentral()
+    jcenter()
+}
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}
