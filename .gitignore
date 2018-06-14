@@ -1,4 +1,5 @@
-/config.yml
+storage/
+/config.json
 *.class
 
 # Mobile Tools for Java (J2ME)
