@@ -9,7 +9,7 @@ apply plugin: 'idea'
 version '0.1'
 group 'com.avairebot'
 description = 'Helpfull bot for managing AvaIre the Discord Bot'
-mainClassName = 'com.avairebot.senither.AutoSenither'
+mainClassName = 'com.avairebot.senither.Main'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
