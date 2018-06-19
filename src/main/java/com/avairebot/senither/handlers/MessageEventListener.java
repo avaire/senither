@@ -1,6 +1,7 @@
 package com.avairebot.senither.handlers;
 
 import com.avairebot.senither.AutoSenither;
+import com.avairebot.senither.Constants;
 import com.avairebot.senither.commands.CommandHandler;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.contracts.handlers.EventListener;
@@ -24,7 +25,14 @@ public class MessageEventListener extends EventListener {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor().isBot() || !event.getChannelType().isGuild()) {
+        if (event.getAuthor().isBot() && event.getAuthor().getIdLong() != Constants.AVAIRE_BOT_ID) {
+            return;
+        }
+
+        if (!event.getChannelType().isGuild()) {
+            event.getChannel().sendMessage(
+                "I'm a bot, if you have any questions or concerns about AvaIre or related projects, try and DM <@88739639380172800>."
+            ).queue();
             return;
         }
 
