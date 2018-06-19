@@ -3,8 +3,8 @@ package com.avairebot.senither.commands.general;
 import com.avairebot.senither.AutoSenither;
 import com.avairebot.senither.Constants;
 import com.avairebot.senither.contracts.commands.Command;
+import com.avairebot.senither.utils.RoleUtil;
 import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class SelfHosterCommand extends Command {
         Member member = event.getMember();
         event.getMessage().delete().queue();
 
-        if (hasRole(member.getRoles(), Constants.SELF_HOST_ROLE_NAME)) {
+        if (RoleUtil.hasRole(member.getRoles(), Constants.SELF_HOST_ROLE_NAME)) {
             event.getGuild().getController().removeSingleRoleFromMember(
                 member, event.getGuild().getRolesByName(Constants.SELF_HOST_ROLE_NAME, true).get(0)
             ).queue();
@@ -42,14 +42,5 @@ public class SelfHosterCommand extends Command {
             event.getChannel().sendMessage("<:tickYes:319985232306765825> You should now have the **Self Hosting** role.")
                 .queue(message -> message.delete().queueAfter(20, TimeUnit.SECONDS));
         }
-    }
-
-    private boolean hasRole(List<Role> roles, String name) {
-        for (Role role : roles) {
-            if (role.getName().equalsIgnoreCase(name)) {
-                return true;
-            }
-        }
-        return false;
     }
 }

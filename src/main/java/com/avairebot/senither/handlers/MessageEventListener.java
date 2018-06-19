@@ -5,10 +5,15 @@ import com.avairebot.senither.Constants;
 import com.avairebot.senither.commands.CommandHandler;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.contracts.handlers.EventListener;
+import com.avairebot.senither.utils.RoleUtil;
+import net.dv8tion.jda.core.OnlineStatus;
+import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.TimeUnit;
 
 public class MessageEventListener extends EventListener {
 
@@ -46,6 +51,19 @@ public class MessageEventListener extends EventListener {
                 .replace("%message%", event.getMessage().getContentRaw())
             );
             CommandHandler.invokeCommand(event, command);
+        }
+
+        if (event.getChannel().getIdLong() == Constants.BETA_SANDBOX_ID) {
+            if (RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_NAME)) {
+                return;
+            }
+
+            Member betaBot = event.getGuild().getMemberById(Constants.BETA_BOT_ID);
+            if (betaBot != null && betaBot.getOnlineStatus().equals(OnlineStatus.OFFLINE)) {
+                event.getMessage().getChannel().sendMessage(
+                    "The beta bot is currently offline, you can test the live bot in <#284100870440878081>"
+                ).queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
+            }
         }
     }
 
