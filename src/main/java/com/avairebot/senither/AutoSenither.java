@@ -1,6 +1,7 @@
 package com.avairebot.senither;
 
 import com.avairebot.senither.commands.CommandHandler;
+import com.avairebot.senither.commands.general.SelfHosterCommand;
 import com.avairebot.senither.contracts.commands.Command;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
@@ -24,7 +25,7 @@ public class AutoSenither extends ListenerAdapter {
         this.configuration = configuration;
         this.shardManager = buildShardManager();
 
-//        CommandHandler.registerCommand(new SomeTestCommand(this));
+        CommandHandler.registerCommand(new SelfHosterCommand(this));
     }
 
     public Configuration getConfiguration() {
