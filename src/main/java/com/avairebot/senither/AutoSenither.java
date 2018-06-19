@@ -1,5 +1,7 @@
 package com.avairebot.senither;
 
+import com.avairebot.senither.commands.CommandHandler;
+import com.avairebot.senither.contracts.commands.Command;
 import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
 import net.dv8tion.jda.bot.sharding.ShardManager;
 import net.dv8tion.jda.core.entities.Game;
@@ -21,6 +23,8 @@ public class AutoSenither extends ListenerAdapter {
     public AutoSenither(Configuration configuration) throws LoginException {
         this.configuration = configuration;
         this.shardManager = buildShardManager();
+
+//        CommandHandler.registerCommand(new SomeTestCommand(this));
     }
 
     public Configuration getConfiguration() {
@@ -33,7 +37,14 @@ public class AutoSenither extends ListenerAdapter {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        LOGGER.info("Message received: " + event.getMessage().getContentRaw());
+        if (event.getAuthor().isBot() || !event.getChannelType().isGuild()) {
+            return;
+        }
+
+        Command command = CommandHandler.getCommand(event.getMessage().getContentRaw());
+        if (command != null) {
+            CommandHandler.invokeCommand(event, command);
+        }
     }
 
     private ShardManager buildShardManager() throws LoginException {
