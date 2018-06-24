@@ -15,6 +15,7 @@ import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
@@ -72,6 +73,28 @@ public class MessageEventListener extends EventListener {
             .addField("Before", oldContent, false)
             .addField("After", event.getMessage().getContentRaw(), false)
             .setFooter("#" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")", null)
+            .build()
+        ).queue();
+    }
+
+    @Override
+    public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
+        @Nullable String oldContent = cache.getIfPresent(event.getMessageIdLong());
+        if (oldContent == null) {
+            return;
+        }
+
+        TextChannel messageLogChannel = app.getShardManager().getTextChannelById(Constants.MESSAGE_LOG_ID);
+        if (messageLogChannel == null) {
+            return;
+        }
+
+        cache.invalidate(event.getMessageIdLong());
+
+        messageLogChannel.sendMessage(new EmbedBuilder()
+            .setColor(Color.decode("#E84A1F"))
+            .setTitle("Deleted message in #" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")")
+            .setDescription(oldContent)
             .build()
         ).queue();
     }
