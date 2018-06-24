@@ -123,6 +123,7 @@ public class MessageEventListener extends EventListener {
                     .build()
                 ).queue();
             }
+            cache.invalidate(event.getMessage().getIdLong());
             event.getMessage().delete().queue();
             return;
         }

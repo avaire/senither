@@ -4,6 +4,8 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.annotation.Nonnull;
 import java.io.IOException;
@@ -15,14 +17,19 @@ import java.util.regex.Pattern;
 
 public class ChatFilterUtil {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(ChatFilterUtil.class);
     private static final int MAX_REDIRECTS = 10;
-
     private static final LoadingCache<String, String> cache = CacheBuilder.newBuilder()
         .expireAfterWrite(2, TimeUnit.HOURS)
         .build(new CacheLoader<String, String>() {
             @Override
             public String load(@Nonnull String key) throws Exception {
-                return getTrueUrl(key, 0);
+                try {
+                    return getTrueUrl(key, 0);
+                } catch (IOException e) {
+                    LOGGER.error("An exception was thrown while trying to resolve the true url for {}", key, e);
+                    return key;
+                }
             }
         });
 
