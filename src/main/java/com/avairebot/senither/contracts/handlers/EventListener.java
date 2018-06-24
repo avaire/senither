@@ -5,7 +5,7 @@ import net.dv8tion.jda.core.hooks.ListenerAdapter;
 
 public abstract class EventListener extends ListenerAdapter {
 
-    private final AutoSenither app;
+    protected final AutoSenither app;
 
     public EventListener(AutoSenither app) {
         this.app = app;

@@ -5,14 +5,18 @@ import com.avairebot.senither.Constants;
 import com.avairebot.senither.commands.CommandHandler;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.contracts.handlers.EventListener;
+import com.avairebot.senither.utils.ChatFilterUtil;
 import com.avairebot.senither.utils.RoleUtil;
+import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
+import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
 public class MessageEventListener extends EventListener {
@@ -38,6 +42,21 @@ public class MessageEventListener extends EventListener {
             event.getChannel().sendMessage(
                 "I'm a bot, if you have any questions or concerns about AvaIre or related projects, try and DM <@88739639380172800>."
             ).queue();
+            return;
+        }
+
+        if (ChatFilterUtil.isAdvertisement(event)) {
+            TextChannel messageLogChannel = app.getShardManager().getTextChannelById(Constants.MESSAGE_LOG_ID);
+            if (messageLogChannel != null) {
+                messageLogChannel.sendMessage(new EmbedBuilder()
+                    .setColor(Color.decode("#EEDE28"))
+                    .setTitle("Blocked advertisement by " + event.getAuthor().getName() + "(" + event.getAuthor().getId() + ")")
+                    .setDescription(event.getMessage().getContentRaw())
+                    .setFooter("#" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")", null)
+                    .build()
+                ).queue();
+            }
+            event.getMessage().delete().queue();
             return;
         }
 
