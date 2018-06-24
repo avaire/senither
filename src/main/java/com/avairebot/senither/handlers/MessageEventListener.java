@@ -7,12 +7,17 @@ import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.contracts.handlers.EventListener;
 import com.avairebot.senither.utils.ChatFilterUtil;
 import com.avairebot.senither.utils.RoleUtil;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import net.dv8tion.jda.core.EmbedBuilder;
 import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
+import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -20,6 +25,10 @@ import java.awt.*;
 import java.util.concurrent.TimeUnit;
 
 public class MessageEventListener extends EventListener {
+
+    private static final Cache<Long, String> cache = CacheBuilder.newBuilder()
+        .expireAfterWrite(6, TimeUnit.HOURS)
+        .build();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageEventListener.class);
     private final static String COMMAND_OUTPUT = "Executing Command \"%command%\""
@@ -30,6 +39,41 @@ public class MessageEventListener extends EventListener {
 
     public MessageEventListener(AutoSenither app) {
         super(app);
+    }
+
+    @Override
+    public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
+        if (!event.getAuthor().isBot()) {
+            cache.put(event.getMessage().getIdLong(), event.getMessage().getContentRaw());
+        }
+    }
+
+    @Override
+    public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
+        if (event.getAuthor().isBot()) {
+            return;
+        }
+
+        @Nullable String oldContent = cache.getIfPresent(event.getMessage().getIdLong());
+        if (oldContent == null) {
+            return;
+        }
+
+        TextChannel messageLogChannel = app.getShardManager().getTextChannelById(Constants.MESSAGE_LOG_ID);
+        if (messageLogChannel == null) {
+            return;
+        }
+
+        cache.put(event.getMessage().getIdLong(), event.getMessage().getContentRaw());
+
+        messageLogChannel.sendMessage(new EmbedBuilder()
+            .setColor(Color.decode("#2D7DD7"))
+            .setTitle("Edit message by " + event.getAuthor().getName() + "(" + event.getAuthor().getId() + ")")
+            .addField("Before", oldContent, false)
+            .addField("After", event.getMessage().getContentRaw(), false)
+            .setFooter("#" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")", null)
+            .build()
+        ).queue();
     }
 
     @Override
