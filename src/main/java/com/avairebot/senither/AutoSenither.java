@@ -2,6 +2,7 @@ package com.avairebot.senither;
 
 import com.avairebot.senither.commands.CommandHandler;
 import com.avairebot.senither.commands.general.SelfHosterCommand;
+import com.avairebot.senither.commands.general.ShutdownCommand;
 import com.avairebot.senither.handlers.MessageEventListener;
 import com.avairebot.senither.jobs.UpdateStatusJob;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -32,6 +33,7 @@ public class AutoSenither {
         this.shardManager = buildShardManager();
 
         CommandHandler.registerCommand(new SelfHosterCommand(this));
+        CommandHandler.registerCommand(new ShutdownCommand(this));
 
         scheduledExecutorService.scheduleWithFixedDelay(new UpdateStatusJob(this), 5, 5, TimeUnit.SECONDS);
     }

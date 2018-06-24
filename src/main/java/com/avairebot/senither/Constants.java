@@ -5,6 +5,7 @@ public class Constants {
     public static final String COMMAND_PREFIX = "!";
     public static final String STAFF_ROLE_NAME = "Staff";
     public static final String SELF_HOST_ROLE_NAME = "Self Hoster";
+    public static final String BOT_ADMIN_ROLE_NAME = "Ping_for_Reboot/Restart";
 
     public static final long AVAIRE_BOT_ID = 275270122082533378L;
     public static final long BETA_BOT_ID = 284108581677170689L;
