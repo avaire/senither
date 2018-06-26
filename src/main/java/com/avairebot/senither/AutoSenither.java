@@ -1,6 +1,7 @@
 package com.avairebot.senither;
 
 import com.avairebot.senither.commands.CommandHandler;
+import com.avairebot.senither.commands.general.RunScriptCommand;
 import com.avairebot.senither.commands.general.SelfHosterCommand;
 import com.avairebot.senither.commands.general.ShutdownCommand;
 import com.avairebot.senither.handlers.MessageEventListener;
@@ -34,6 +35,7 @@ public class AutoSenither {
 
         CommandHandler.registerCommand(new SelfHosterCommand(this));
         CommandHandler.registerCommand(new ShutdownCommand(this));
+        CommandHandler.registerCommand(new RunScriptCommand(this));
 
         scheduledExecutorService.scheduleWithFixedDelay(new UpdateStatusJob(this), 5, 5, TimeUnit.SECONDS);
     }
