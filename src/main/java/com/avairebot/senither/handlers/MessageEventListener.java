@@ -14,6 +14,7 @@ import net.dv8tion.jda.core.OnlineStatus;
 import net.dv8tion.jda.core.entities.Member;
 import net.dv8tion.jda.core.entities.Message;
 import net.dv8tion.jda.core.entities.TextChannel;
+import net.dv8tion.jda.core.entities.User;
 import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
 import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
@@ -27,7 +28,7 @@ import java.util.concurrent.TimeUnit;
 
 public class MessageEventListener extends EventListener {
 
-    private static final Cache<Long, String> cache = CacheBuilder.newBuilder()
+    private static final Cache<Long, MessageCache> cache = CacheBuilder.newBuilder()
         .expireAfterWrite(6, TimeUnit.HOURS)
         .build();
 
@@ -45,7 +46,7 @@ public class MessageEventListener extends EventListener {
     @Override
     public void onGuildMessageReceived(GuildMessageReceivedEvent event) {
         if (!event.getAuthor().isBot()) {
-            cache.put(event.getMessage().getIdLong(), event.getMessage().getContentRaw());
+            cache.put(event.getMessage().getIdLong(), new MessageCache(event));
         }
     }
 
@@ -55,7 +56,7 @@ public class MessageEventListener extends EventListener {
             return;
         }
 
-        @Nullable String oldContent = cache.getIfPresent(event.getMessage().getIdLong());
+        @Nullable MessageCache oldContent = cache.getIfPresent(event.getMessage().getIdLong());
         if (oldContent == null) {
             return;
         }
@@ -65,12 +66,10 @@ public class MessageEventListener extends EventListener {
             return;
         }
 
-        cache.put(event.getMessage().getIdLong(), event.getMessage().getContentRaw());
-
         messageLogChannel.sendMessage(new EmbedBuilder()
             .setColor(Color.decode("#2D7DD7"))
-            .setTitle("Edit message by " + event.getAuthor().getName() + "(" + event.getAuthor().getId() + ")")
-            .addField("Before", oldContent, false)
+            .setTitle("Edited a message by " + buildUserString(event.getAuthor()))
+            .addField("Before", oldContent.message, false)
             .addField("After", event.getMessage().getContentRaw(), false)
             .setFooter("#" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")", null)
             .build()
@@ -79,7 +78,7 @@ public class MessageEventListener extends EventListener {
 
     @Override
     public void onGuildMessageDelete(GuildMessageDeleteEvent event) {
-        @Nullable String oldContent = cache.getIfPresent(event.getMessageIdLong());
+        @Nullable MessageCache oldContent = cache.getIfPresent(event.getMessageIdLong());
         if (oldContent == null) {
             return;
         }
@@ -94,7 +93,8 @@ public class MessageEventListener extends EventListener {
         messageLogChannel.sendMessage(new EmbedBuilder()
             .setColor(Color.decode("#E84A1F"))
             .setTitle("Deleted message in #" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")")
-            .setDescription(oldContent)
+            .addField("Message Author", oldContent.author + " (" + oldContent.authorId + ")", false)
+            .setDescription(oldContent.message)
             .build()
         ).queue();
     }
@@ -182,5 +182,35 @@ public class MessageEventListener extends EventListener {
             message.getChannel().getName(),
             message.getChannel().getId()
         );
+    }
+
+    private String buildUserString(User user) {
+        return user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")";
+    }
+
+    private class MessageCache {
+        private final String message;
+        private final long messageId;
+        private final long authorId;
+        private final String author;
+        private final String authorUsername;
+        private final String authorDiscriminator;
+
+        MessageCache(GuildMessageReceivedEvent event) {
+            this(event.getMessage(), event.getAuthor());
+        }
+
+        MessageCache(GuildMessageUpdateEvent event) {
+            this(event.getMessage(), event.getAuthor());
+        }
+
+        MessageCache(Message message, User author) {
+            this.message = message.getContentRaw();
+            this.messageId = message.getIdLong();
+            this.authorId = author.getIdLong();
+            this.author = author.getName() + "#" + author.getDiscriminator();
+            this.authorUsername = author.getName();
+            this.authorDiscriminator = author.getDiscriminator();
+        }
     }
 }
