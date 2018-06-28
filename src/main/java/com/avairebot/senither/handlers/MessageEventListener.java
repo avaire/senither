@@ -90,6 +90,10 @@ public class MessageEventListener extends EventListener {
 
         cache.invalidate(event.getMessageIdLong());
 
+        if (oldContent.createdAt + 2500 > System.currentTimeMillis()) {
+            return;
+        }
+
         messageLogChannel.sendMessage(new EmbedBuilder()
             .setColor(Color.decode("#E84A1F"))
             .setTitle("Deleted message in #" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")")
@@ -195,6 +199,7 @@ public class MessageEventListener extends EventListener {
         private final String author;
         private final String authorUsername;
         private final String authorDiscriminator;
+        private final long createdAt;
 
         MessageCache(GuildMessageReceivedEvent event) {
             this(event.getMessage(), event.getAuthor());
@@ -211,6 +216,7 @@ public class MessageEventListener extends EventListener {
             this.author = author.getName() + "#" + author.getDiscriminator();
             this.authorUsername = author.getName();
             this.authorDiscriminator = author.getDiscriminator();
+            this.createdAt = System.currentTimeMillis();
         }
     }
 }
