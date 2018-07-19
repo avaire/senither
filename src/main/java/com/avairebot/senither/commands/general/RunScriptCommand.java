@@ -20,6 +20,8 @@ public class RunScriptCommand extends Command {
         SCRIPTS.put("mutual", "avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\"));");
         SCRIPTS.put("mutual-shard", "Arrays.asList(avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\")).stream().map(function(guild) { return guild.getId() + \": \" + guild.getJDA().getShardInfo().getShardString() + \"\\n\";\n}).toArray());");
         SCRIPTS.put("restart", "avaire.getShardManager().restart(%s);");
+        SCRIPTS.put("has-voted", "avaire.getVoteManager().hasVoted(avaire.getShardManager().getUserById(\"%s\"));");
+        SCRIPTS.put("register-vote", "avaire.getVoteManager().registerVoteFor(avaire.getShardManager().getUserById(\"%s\"));");
     }
 
     public RunScriptCommand(AutoSenither app) {
