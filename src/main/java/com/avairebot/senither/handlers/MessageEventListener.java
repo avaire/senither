@@ -116,7 +116,7 @@ public class MessageEventListener extends EventListener {
             return;
         }
 
-        if (ChatFilterUtil.isAdvertisement(event)) {
+        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_NAME) && ChatFilterUtil.isAdvertisement(event)) {
             TextChannel messageLogChannel = app.getShardManager().getTextChannelById(Constants.MESSAGE_LOG_ID);
             if (messageLogChannel != null) {
                 messageLogChannel.sendMessage(new EmbedBuilder()
