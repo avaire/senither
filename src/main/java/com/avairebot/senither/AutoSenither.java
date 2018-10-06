@@ -1,10 +1,7 @@
 package com.avairebot.senither;
 
 import com.avairebot.senither.commands.CommandHandler;
-import com.avairebot.senither.commands.general.RunScriptCommand;
-import com.avairebot.senither.commands.general.SelfHosterCommand;
-import com.avairebot.senither.commands.general.ShutdownCommand;
-import com.avairebot.senither.commands.general.TagCommand;
+import com.avairebot.senither.commands.general.*;
 import com.avairebot.senither.handlers.MessageEventListener;
 import com.avairebot.senither.jobs.UpdateStatusJob;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
@@ -37,6 +34,7 @@ public class AutoSenither {
         CommandHandler.registerCommand(new SelfHosterCommand(this));
         CommandHandler.registerCommand(new ShutdownCommand(this));
         CommandHandler.registerCommand(new RunScriptCommand(this));
+        CommandHandler.registerCommand(new SuggestCommand(this));
         CommandHandler.registerCommand(new TagCommand(this));
 
         scheduledExecutorService.scheduleWithFixedDelay(new UpdateStatusJob(this), 5, 5, TimeUnit.SECONDS);

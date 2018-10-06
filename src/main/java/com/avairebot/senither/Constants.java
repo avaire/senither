@@ -13,4 +13,9 @@ public class Constants {
     public static final long BETA_SANDBOX_ID = 295009328715530240L;
     public static final long MESSAGE_LOG_ID = 440851504732176396L;
     public static final long SENITHER_ID = 88739639380172800L;
+
+    public static final long YES_EMOTE_ID = 319985232306765825L;
+    public static final long NO_EMOTE_ID = 319985629750624257L;
+
+    public static final long SUGGESTION_CHANNEL_ID = 491321943757291530L;
 }
