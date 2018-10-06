@@ -27,16 +27,16 @@ public class SelfHosterCommand extends Command {
         Member member = event.getMember();
         event.getMessage().delete().queue();
 
-        if (RoleUtil.hasRole(member.getRoles(), Constants.SELF_HOST_ROLE_NAME)) {
+        if (RoleUtil.hasRole(member.getRoles(), Constants.SELF_HOST_ROLE_ID)) {
             event.getGuild().getController().removeSingleRoleFromMember(
-                member, event.getGuild().getRolesByName(Constants.SELF_HOST_ROLE_NAME, true).get(0)
+                member, event.getGuild().getRoleById(Constants.SELF_HOST_ROLE_ID)
             ).queue();
 
             event.getChannel().sendMessage("<:tickYes:319985232306765825> You no longer have the **Self Hosting** role :(")
                 .queue(message -> message.delete().queueAfter(20, TimeUnit.SECONDS));
         } else {
             event.getGuild().getController().addSingleRoleToMember(
-                member, event.getGuild().getRolesByName(Constants.SELF_HOST_ROLE_NAME, true).get(0)
+                member, event.getGuild().getRoleById(Constants.SELF_HOST_ROLE_ID)
             ).queue();
 
             event.getChannel().sendMessage("<:tickYes:319985232306765825> You should now have the **Self Hosting** role.")

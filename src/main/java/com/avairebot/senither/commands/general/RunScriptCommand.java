@@ -39,7 +39,7 @@ public class RunScriptCommand extends Command {
             return;
         }
 
-        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.BOT_ADMIN_ROLE_NAME)) {
+        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.BOT_ADMIN_ROLE_ID)) {
             return;
         }
 

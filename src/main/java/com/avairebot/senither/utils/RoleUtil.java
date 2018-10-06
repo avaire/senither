@@ -14,4 +14,13 @@ public class RoleUtil {
         }
         return false;
     }
+
+    public static boolean hasRole(List<Role> roles, long id) {
+        for (Role role : roles) {
+            if (role.getIdLong() == id) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

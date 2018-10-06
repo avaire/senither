@@ -116,7 +116,7 @@ public class MessageEventListener extends EventListener {
             return;
         }
 
-        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_NAME) && ChatFilterUtil.isAdvertisement(event)) {
+        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_ID) && ChatFilterUtil.isAdvertisement(event)) {
             TextChannel messageLogChannel = app.getShardManager().getTextChannelById(Constants.MESSAGE_LOG_ID);
             if (messageLogChannel != null) {
                 messageLogChannel.sendMessage(new EmbedBuilder()
@@ -145,7 +145,7 @@ public class MessageEventListener extends EventListener {
         }
 
         if (event.getChannel().getIdLong() == Constants.BETA_SANDBOX_ID) {
-            if (RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_NAME)) {
+            if (RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_ID)) {
                 return;
             }
 
