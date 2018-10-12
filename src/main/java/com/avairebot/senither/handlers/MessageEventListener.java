@@ -56,6 +56,11 @@ public class MessageEventListener extends EventListener {
             return;
         }
 
+        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_ID) && ChatFilterUtil.isAdvertisement(event.getMessage())) {
+            handleChatFilter(event.getMessage());
+            return;
+        }
+
         @Nullable MessageCache oldContent = cache.getIfPresent(event.getMessage().getIdLong());
         if (oldContent == null) {
             return;
@@ -116,19 +121,8 @@ public class MessageEventListener extends EventListener {
             return;
         }
 
-        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_ID) && ChatFilterUtil.isAdvertisement(event)) {
-            TextChannel messageLogChannel = app.getShardManager().getTextChannelById(Constants.MESSAGE_LOG_ID);
-            if (messageLogChannel != null) {
-                messageLogChannel.sendMessage(new EmbedBuilder()
-                    .setColor(Color.decode("#EEDE28"))
-                    .setTitle("Blocked advertisement by " + event.getAuthor().getName() + "(" + event.getAuthor().getId() + ")")
-                    .setDescription(event.getMessage().getContentRaw())
-                    .setFooter("#" + event.getChannel().getName() + " (" + event.getChannel().getId() + ")", null)
-                    .build()
-                ).queue();
-            }
-            cache.invalidate(event.getMessage().getIdLong());
-            event.getMessage().delete().queue();
+        if (!RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_ID) && ChatFilterUtil.isAdvertisement(event.getMessage())) {
+            handleChatFilter(event.getMessage());
             return;
         }
 
@@ -192,7 +186,23 @@ public class MessageEventListener extends EventListener {
         return user.getName() + "#" + user.getDiscriminator() + " (" + user.getId() + ")";
     }
 
+    private void handleChatFilter(Message jdaMessage) {
+        TextChannel messageLogChannel = app.getShardManager().getTextChannelById(Constants.MESSAGE_LOG_ID);
+        if (messageLogChannel != null) {
+            messageLogChannel.sendMessage(new EmbedBuilder()
+                .setColor(Color.decode("#EEDE28"))
+                .setTitle("Blocked advertisement by " + jdaMessage.getAuthor().getName() + "(" + jdaMessage.getAuthor().getId() + ")")
+                .setDescription(jdaMessage.getContentRaw())
+                .setFooter("#" + jdaMessage.getChannel().getName() + " (" + jdaMessage.getChannel().getId() + ")", null)
+                .build()
+            ).queue();
+        }
+        cache.invalidate(jdaMessage.getIdLong());
+        jdaMessage.delete().queue();
+    }
+
     private class MessageCache {
+
         private final String message;
         private final long messageId;
         private final long authorId;

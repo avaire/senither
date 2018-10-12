@@ -3,7 +3,7 @@ package com.avairebot.senither.utils;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.core.entities.Message;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -40,8 +40,8 @@ public class ChatFilterUtil {
         Pattern.CASE_INSENSITIVE | Pattern.MULTILINE | Pattern.DOTALL
     );
 
-    public static boolean isAdvertisement(MessageReceivedEvent event) {
-        String message = event.getMessage().getContentRaw();
+    public static boolean isAdvertisement(Message jdaMessage) {
+        String message = jdaMessage.getContentRaw();
         Matcher matcher = urlPattern.matcher(message);
 
         while (matcher.find()) {
