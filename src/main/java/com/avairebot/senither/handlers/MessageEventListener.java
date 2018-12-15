@@ -25,6 +25,7 @@ import org.slf4j.LoggerFactory;
 
 import java.awt.*;
 import java.util.concurrent.TimeUnit;
+import java.util.regex.Pattern;
 
 public class MessageEventListener extends EventListener {
 
@@ -33,6 +34,7 @@ public class MessageEventListener extends EventListener {
         .build();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MessageEventListener.class);
+    private static final Pattern userRegEX = Pattern.compile("<@(!|)+[0-9]{16,}+>", Pattern.CASE_INSENSITIVE);
     private final static String COMMAND_OUTPUT = "Executing Command \"%command%\""
         + "\n\t\tUser:\t %author%"
         + "\n\t\tServer:\t %server%"
@@ -126,17 +128,7 @@ public class MessageEventListener extends EventListener {
             return;
         }
 
-        Command command = CommandHandler.getCommand(event.getMessage().getContentRaw());
-        if (command != null) {
-            LOGGER.info(COMMAND_OUTPUT
-                .replace("%command%", command.getClass().getSimpleName())
-                .replace("%author%", generateUsername(event.getMessage()))
-                .replace("%channel%", generateChannel(event.getMessage()))
-                .replace("%server%", generateServer(event.getMessage()))
-                .replace("%message%", event.getMessage().getContentRaw())
-            );
-            CommandHandler.invokeCommand(event, command);
-        }
+        runCommandIfItExists(event, isMentionableAction(event));
 
         if (event.getChannel().getIdLong() == Constants.BETA_SANDBOX_ID) {
             if (RoleUtil.hasRole(event.getMember().getRoles(), Constants.STAFF_ROLE_ID)) {
@@ -149,6 +141,36 @@ public class MessageEventListener extends EventListener {
                     "The beta bot is currently offline, you can test the live bot in <#284100870440878081>"
                 ).queue(message -> message.delete().queueAfter(10, TimeUnit.SECONDS));
             }
+        }
+    }
+
+    private boolean isMentionableAction(MessageReceivedEvent event) {
+        if (event.getGuild() == null || !event.getMessage().isMentioned(event.getGuild().getSelfMember())) {
+            return false;
+        }
+
+        String[] args = event.getMessage().getContentRaw().split(" ");
+        return args.length >= 2 &&
+            userRegEX.matcher(args[0]).matches();
+    }
+
+    private void runCommandIfItExists(MessageReceivedEvent event, boolean isMentionable) {
+        String part = event.getMessage().getContentRaw().split(" ")[isMentionable ? 1 : 0];
+
+        Command command = CommandHandler.getCommand(
+            (isMentionable ? Constants.COMMAND_PREFIX : "") + part
+        );
+
+        if (command != null) {
+            LOGGER.info(COMMAND_OUTPUT
+                .replace("%command%", command.getClass().getSimpleName())
+                .replace("%author%", generateUsername(event.getMessage()))
+                .replace("%channel%", generateChannel(event.getMessage()))
+                .replace("%server%", generateServer(event.getMessage()))
+                .replace("%message%", event.getMessage().getContentRaw())
+            );
+
+            CommandHandler.invokeCommand(event, command, isMentionable);
         }
     }
 

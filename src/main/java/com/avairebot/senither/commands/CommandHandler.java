@@ -47,8 +47,12 @@ public class CommandHandler {
     }
 
     public static void invokeCommand(@Nonnull MessageReceivedEvent event, @Nonnull Command command) {
+        invokeCommand(event, command, false);
+    }
+
+    public static void invokeCommand(@Nonnull MessageReceivedEvent event, @Nonnull Command command, boolean invokedThroughMentions) {
         String[] arguments = toArguments(event.getMessage().getContentRaw());
-        command.onCommand(event, Arrays.copyOfRange(arguments, 1, arguments.length));
+        command.onCommand(event, Arrays.copyOfRange(arguments, invokedThroughMentions ? 2 : 1, arguments.length));
     }
 
     private static String[] toArguments(String string) {
