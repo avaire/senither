@@ -35,6 +35,7 @@ public class AutoSenither {
         CommandHandler.registerCommand(new ShutdownCommand(this));
         CommandHandler.registerCommand(new RunScriptCommand(this));
         CommandHandler.registerCommand(new SuggestCommand(this));
+        CommandHandler.registerCommand(new UptimeCommand(this));
         CommandHandler.registerCommand(new TagCommand(this));
 
         scheduledExecutorService.scheduleWithFixedDelay(new UpdateStatusJob(this), 5, 5, TimeUnit.SECONDS);
