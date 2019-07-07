@@ -6,7 +6,7 @@ plugins {
 apply plugin: 'java'
 apply plugin: 'idea'
 
-version '0.5'
+version '0.6'
 group 'com.avairebot'
 description = 'Helpfull bot for managing AvaIre the Discord Bot'
 mainClassName = 'com.avairebot.senither.Main'
