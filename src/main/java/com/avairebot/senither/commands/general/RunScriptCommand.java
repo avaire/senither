@@ -14,14 +14,33 @@ import java.util.concurrent.TimeUnit;
 
 public class RunScriptCommand extends Command {
 
-    private static final Map<String, String> SCRIPTS = new HashMap<>();
+    private static final Map<String, Script> SCRIPTS = new HashMap<>();
 
-    static {
-        SCRIPTS.put("mutual", "avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\"));");
-        SCRIPTS.put("mutual-shard", "Arrays.asList(avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\")).stream().map(function(guild) { return guild.getId() + \": \" + guild.getJDA().getShardInfo().getShardString() + \"\\n\";\n}).toArray());");
-        SCRIPTS.put("restart", "avaire.getShardManager().restart(%s);");
-        SCRIPTS.put("has-voted", "avaire.getVoteManager().hasVoted(avaire.getShardManager().getUserById(\"%s\"));");
-        SCRIPTS.put("register-vote", "avaire.getVoteManager().registerVoteFor(avaire.getShardManager().getUserById(\"%s\"), 1);");
+    {
+        SCRIPTS.put("mutual", new Script(
+            ";eval return avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\"));",
+            Long::parseLong
+        ));
+        SCRIPTS.put("mutual-shard", new Script(
+            ";eval return Arrays.asList(avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\")).stream().map(function(guild) { return guild.getId() + \": \" + guild.getJDA().getShardInfo().getShardString() + \"\\n\";\n}).toArray());",
+            Long::parseLong
+        ));
+        SCRIPTS.put("restart", new Script(
+            ";eval return avaire.getShardManager().restart(%s);",
+            Long::parseLong
+        ));
+        SCRIPTS.put("has-voted", new Script(
+            ";eval return avaire.getVoteManager().hasVoted(avaire.getShardManager().getUserById(\"%s\"));",
+            Long::parseLong
+        ));
+        SCRIPTS.put("register-vote", new Script(
+            ";eval return avaire.getVoteManager().registerVoteFor(avaire.getShardManager().getUserById(\"%s\"), 1);",
+            Long::parseLong
+        ));
+        SCRIPTS.put("restart", new Script(
+            ";restart %s",
+            String::valueOf
+        ));
     }
 
     public RunScriptCommand(AutoSenither app) {
@@ -62,14 +81,37 @@ public class RunScriptCommand extends Command {
         }
 
         try {
-            long value = Long.parseLong(args[1].toLowerCase());
+            Script script = SCRIPTS.get(args[0].toLowerCase());
 
-            event.getChannel().sendMessage(
-                ";eval return " + String.format(SCRIPTS.get(args[0].toLowerCase()), value)
-            ).queue();
-        } catch (NumberFormatException e) {
+            event.getChannel().sendMessage(String.format(
+                script.getAction(), script.getFunction().parse(args[1])
+            )).queue();
+        } catch (Exception e) {
             event.getChannel().sendMessage("Invalid second argument given, the 2nd argument must be a valid number.")
                 .queue(newMessage -> newMessage.delete().queueAfter(1, TimeUnit.MINUTES));
+        }
+    }
+
+    @FunctionalInterface
+    interface ScriptAction {
+        Object parse(String value) throws Exception;
+    }
+
+    class Script {
+        private final String action;
+        private final ScriptAction function;
+
+        Script(String action, ScriptAction function) {
+            this.action = action;
+            this.function = function;
+        }
+
+        public String getAction() {
+            return action;
+        }
+
+        public ScriptAction getFunction() {
+            return function;
         }
     }
 }
