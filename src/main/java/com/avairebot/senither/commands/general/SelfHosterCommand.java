@@ -4,8 +4,9 @@ import com.avairebot.senither.AutoSenither;
 import com.avairebot.senither.Constants;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.utils.RoleUtil;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -27,17 +28,18 @@ public class SelfHosterCommand extends Command {
         Member member = event.getMember();
         event.getMessage().delete().queue();
 
+        Role roleById = event.getGuild().getRoleById(Constants.SELF_HOST_ROLE_ID);
+        if (member == null || roleById == null) {
+            return;
+        }
+
         if (RoleUtil.hasRole(member.getRoles(), Constants.SELF_HOST_ROLE_ID)) {
-            event.getGuild().getController().removeSingleRoleFromMember(
-                member, event.getGuild().getRoleById(Constants.SELF_HOST_ROLE_ID)
-            ).queue();
+            event.getGuild().removeRoleFromMember(member, roleById).queue();
 
             event.getChannel().sendMessage("<:tickYes:319985232306765825> You no longer have the **Self Hosting** role :(")
                 .queue(message -> message.delete().queueAfter(20, TimeUnit.SECONDS));
         } else {
-            event.getGuild().getController().addSingleRoleToMember(
-                member, event.getGuild().getRoleById(Constants.SELF_HOST_ROLE_ID)
-            ).queue();
+            event.getGuild().addRoleToMember(member, roleById).queue();
 
             event.getChannel().sendMessage("<:tickYes:319985232306765825> You should now have the **Self Hosting** role.")
                 .queue(message -> message.delete().queueAfter(20, TimeUnit.SECONDS));

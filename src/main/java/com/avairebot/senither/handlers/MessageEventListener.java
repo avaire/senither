@@ -9,16 +9,16 @@ import com.avairebot.senither.utils.ChatFilterUtil;
 import com.avairebot.senither.utils.RoleUtil;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Message;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageDeleteEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageReceivedEvent;
-import net.dv8tion.jda.core.events.message.guild.GuildMessageUpdateEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Message;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageDeleteEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.guild.GuildMessageUpdateEvent;
 import org.checkerframework.checker.nullness.qual.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -54,7 +54,7 @@ public class MessageEventListener extends EventListener {
 
     @Override
     public void onGuildMessageUpdate(GuildMessageUpdateEvent event) {
-        if (event.getAuthor().isBot()) {
+        if (event.getMember() == null || event.getAuthor().isBot()) {
             return;
         }
 
@@ -112,7 +112,7 @@ public class MessageEventListener extends EventListener {
 
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        if (event.getAuthor().isBot() && event.getAuthor().getIdLong() != Constants.AVAIRE_BOT_ID) {
+        if (event.getMember() == null || event.getAuthor().isBot() && event.getAuthor().getIdLong() != Constants.AVAIRE_BOT_ID) {
             return;
         }
 
@@ -145,7 +145,7 @@ public class MessageEventListener extends EventListener {
     }
 
     private boolean isMentionableAction(MessageReceivedEvent event) {
-        if (event.getGuild() == null || !event.getMessage().isMentioned(event.getGuild().getSelfMember())) {
+        if (!event.getMessage().isMentioned(event.getGuild().getSelfMember())) {
             return false;
         }
 
@@ -223,31 +223,21 @@ public class MessageEventListener extends EventListener {
         jdaMessage.delete().queue();
     }
 
-    private class MessageCache {
+    private static class MessageCache {
 
         private final String message;
-        private final long messageId;
         private final long authorId;
         private final String author;
-        private final String authorUsername;
-        private final String authorDiscriminator;
         private final long createdAt;
 
         MessageCache(GuildMessageReceivedEvent event) {
             this(event.getMessage(), event.getAuthor());
         }
 
-        MessageCache(GuildMessageUpdateEvent event) {
-            this(event.getMessage(), event.getAuthor());
-        }
-
         MessageCache(Message message, User author) {
             this.message = message.getContentRaw();
-            this.messageId = message.getIdLong();
             this.authorId = author.getIdLong();
             this.author = author.getName() + "#" + author.getDiscriminator();
-            this.authorUsername = author.getName();
-            this.authorDiscriminator = author.getDiscriminator();
             this.createdAt = System.currentTimeMillis();
         }
     }

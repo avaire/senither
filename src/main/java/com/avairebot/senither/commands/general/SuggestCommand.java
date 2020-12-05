@@ -3,10 +3,11 @@ package com.avairebot.senither.commands.general;
 import com.avairebot.senither.AutoSenither;
 import com.avairebot.senither.Constants;
 import com.avairebot.senither.contracts.commands.Command;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.TextChannel;
-import net.dv8tion.jda.core.entities.User;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Emote;
+import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.entities.User;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.time.Instant;
 import java.util.Arrays;
@@ -58,8 +59,15 @@ public class SuggestCommand extends Command {
                     thanksMessage.delete().queueAfter(25, TimeUnit.SECONDS);
                 });
 
-                newMessage.addReaction(app.getShardManager().getEmoteById(Constants.YES_EMOTE_ID)).queue();
-                newMessage.addReaction(app.getShardManager().getEmoteById(Constants.NO_EMOTE_ID)).queueAfter(2500, TimeUnit.MILLISECONDS);
+                Emote yesEmoteById = app.getShardManager().getEmoteById(Constants.YES_EMOTE_ID);
+                if (yesEmoteById != null) {
+                    newMessage.addReaction(yesEmoteById).queue();
+                }
+
+                Emote noEmoteById = app.getShardManager().getEmoteById(Constants.NO_EMOTE_ID);
+                if (noEmoteById != null) {
+                    newMessage.addReaction(noEmoteById).queueAfter(2500, TimeUnit.MILLISECONDS);
+                }
             });
     }
 }

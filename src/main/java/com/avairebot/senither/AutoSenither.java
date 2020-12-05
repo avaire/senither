@@ -3,18 +3,17 @@ package com.avairebot.senither;
 import com.avairebot.senither.commands.CommandHandler;
 import com.avairebot.senither.commands.general.*;
 import com.avairebot.senither.handlers.MessageEventListener;
-import com.avairebot.senither.jobs.UpdateStatusJob;
 import com.google.common.util.concurrent.ThreadFactoryBuilder;
-import net.dv8tion.jda.bot.sharding.DefaultShardManagerBuilder;
-import net.dv8tion.jda.bot.sharding.ShardManager;
-import net.dv8tion.jda.core.OnlineStatus;
-import net.dv8tion.jda.core.entities.Game;
-import net.dv8tion.jda.core.utils.SessionControllerAdapter;
+import net.dv8tion.jda.api.OnlineStatus;
+import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.sharding.DefaultShardManagerBuilder;
+import net.dv8tion.jda.api.sharding.ShardManager;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
+import net.dv8tion.jda.api.utils.SessionControllerAdapter;
 
 import javax.security.auth.login.LoginException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public class AutoSenither {
 
@@ -37,12 +36,6 @@ public class AutoSenither {
         CommandHandler.registerCommand(new SuggestCommand(this));
         CommandHandler.registerCommand(new UptimeCommand(this));
         CommandHandler.registerCommand(new TagCommand(this));
-
-        scheduledExecutorService.scheduleWithFixedDelay(new UpdateStatusJob(this), 5, 5, TimeUnit.SECONDS);
-    }
-
-    public Configuration getConfiguration() {
-        return configuration;
     }
 
     public ShardManager getShardManager() {
@@ -54,17 +47,14 @@ public class AutoSenither {
     }
 
     private ShardManager buildShardManager() throws LoginException {
-        return new DefaultShardManagerBuilder()
+        return DefaultShardManagerBuilder.createLight(configuration.token)
             .setSessionController(new SessionControllerAdapter())
-            .setToken(configuration.token)
-            .setGame(Game.watching("the server"))
-            .setStatus(OnlineStatus.INVISIBLE)
-            .setBulkDeleteSplittingEnabled(false)
-            .setEnableShutdownHook(false)
+            .setActivity(Activity.watching("the server"))
+            .setMemberCachePolicy(MemberCachePolicy.OWNER.or(MemberCachePolicy.ONLINE))
+            .setStatus(OnlineStatus.ONLINE)
             .setAutoReconnect(true)
             .setContextEnabled(true)
-            .addEventListeners(
-                new MessageEventListener(this)
-            ).build();
+            .addEventListeners(new MessageEventListener(this))
+            .build();
     }
 }

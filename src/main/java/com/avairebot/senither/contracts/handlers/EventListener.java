@@ -1,7 +1,7 @@
 package com.avairebot.senither.contracts.handlers;
 
 import com.avairebot.senither.AutoSenither;
-import net.dv8tion.jda.core.hooks.ListenerAdapter;
+import net.dv8tion.jda.api.hooks.ListenerAdapter;
 
 public abstract class EventListener extends ListenerAdapter {
 

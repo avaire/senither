@@ -3,10 +3,10 @@ package com.avairebot.senither.commands.general;
 import com.avairebot.senither.AutoSenither;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.time.Carbon;
-import net.dv8tion.jda.core.EmbedBuilder;
-import net.dv8tion.jda.core.entities.Member;
-import net.dv8tion.jda.core.entities.Role;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.entities.Member;
+import net.dv8tion.jda.api.entities.Role;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.awt.*;
 import java.lang.management.ManagementFactory;
@@ -32,7 +32,7 @@ public class UptimeCommand extends Command {
 
     @Override
     public void onCommand(MessageReceivedEvent event, String[] args) {
-        if (!isStaff(event.getMember())) {
+        if (event.getMember() == null || !isStaff(event.getMember())) {
             return;
         }
 

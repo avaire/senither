@@ -3,7 +3,7 @@ package com.avairebot.senither.commands;
 import com.avairebot.senither.Constants;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.exceptions.CommandAlreadyRegisteredException;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
@@ -44,10 +44,6 @@ public class CommandHandler {
             }
         }
         commands.add(command);
-    }
-
-    public static void invokeCommand(@Nonnull MessageReceivedEvent event, @Nonnull Command command) {
-        invokeCommand(event, command, false);
     }
 
     public static void invokeCommand(@Nonnull MessageReceivedEvent event, @Nonnull Command command, boolean invokedThroughMentions) {

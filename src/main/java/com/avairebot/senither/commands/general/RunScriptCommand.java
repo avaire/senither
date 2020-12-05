@@ -4,7 +4,7 @@ import com.avairebot.senither.AutoSenither;
 import com.avairebot.senither.Constants;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.utils.RoleUtil;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,11 +18,11 @@ public class RunScriptCommand extends Command {
 
     {
         SCRIPTS.put("mutual", new Script(
-            ";eval return avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\"));",
+            ";eval return avaire.getShardManager().getMutualGuilds(avaire.getShardManager().retrieveUserById(\"%s\").complete());",
             Long::parseLong
         ));
         SCRIPTS.put("mutual-shard", new Script(
-            ";eval return Arrays.asList(avaire.getShardManager().getMutualGuilds(avaire.getShardManager().getUserById(\"%s\")).stream().map(function(guild) { return guild.getId() + \": \" + guild.getJDA().getShardInfo().getShardString() + \"\\n\";\n}).toArray());",
+            ";eval return Arrays.asList(avaire.getShardManager().getMutualGuilds(avaire.getShardManager().retrieveUserById(\"%s\").complete()).stream().map(function(guild) { return guild.getId() + \": \" + guild.getJDA().getShardInfo().getShardString() + \"\\n\";\n}).toArray());",
             Long::parseLong
         ));
         SCRIPTS.put("restart", new Script(
@@ -30,11 +30,11 @@ public class RunScriptCommand extends Command {
             Long::parseLong
         ));
         SCRIPTS.put("has-voted", new Script(
-            ";eval return avaire.getVoteManager().hasVoted(avaire.getShardManager().getUserById(\"%s\"));",
+            ";eval return avaire.getVoteManager().hasVoted(avaire.getShardManager().retrieveUserById(\"%s\").complete());",
             Long::parseLong
         ));
         SCRIPTS.put("register-vote", new Script(
-            ";eval return avaire.getVoteManager().registerVoteFor(avaire.getShardManager().getUserById(\"%s\"), 1);",
+            ";eval return avaire.getVoteManager().registerVoteFor(avaire.getShardManager().retrieveUserById(\"%s\").complete(), 1);",
             Long::parseLong
         ));
         SCRIPTS.put("restart", new Script(
@@ -54,7 +54,7 @@ public class RunScriptCommand extends Command {
 
     @Override
     public void onCommand(MessageReceivedEvent event, String[] args) {
-        if (!event.getChannel().getType().isGuild()) {
+        if (!event.getChannel().getType().isGuild() || event.getMember() == null) {
             return;
         }
 

@@ -4,7 +4,7 @@ import com.avairebot.senither.AutoSenither;
 import com.avairebot.senither.Constants;
 import com.avairebot.senither.contracts.commands.Command;
 import com.avairebot.senither.utils.RoleUtil;
-import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ShutdownCommand extends Command {
 
     @Override
     public void onCommand(MessageReceivedEvent event, String[] args) {
-        if (!event.getChannel().getType().isGuild()) {
+        if (!event.getChannel().getType().isGuild() || event.getMember() == null) {
             return;
         }
 
